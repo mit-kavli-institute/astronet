@@ -28,15 +28,14 @@ def global_features(
 
     Note: time/flux should be folded *before* being passed to this method.
 
-    Returns
-    -------
-    global_features: dict[str, array[float | bool]]
-        global_view: The full light curve folded on the reported period with
-            201 bins.
-        global_std: The standard deviations for each bin.
-        global_mask: A mask indicating whether the bin was empty.
-        global_transit_mask: A mask indicating whether the bin falls inside
-            the detected transit.
+    Returns:
+        A dict mapping feature names to their values. The features are:
+        - "global_view": The full light curve folded on the reported period with
+          201 bins.
+        - "global_std": The standard deviations for each bin.
+        - "global_mask": A mask indicating whether each bin is empty.
+        - "global_transit_mask": A mask indicating whether each bin falls inside
+          the reported transit.
     """
     view, std, mask, _, _ = preprocess.global_view(tic, time, flux, period)
     transit_mask, _, _, _, _ = preprocess.tr_mask_view(tic, time, transit_mask, period)
@@ -61,19 +60,19 @@ def local_features(
 
     Note: time/flux should be folded *before* being passed to this method.
 
-    Returns
-    -------
-    local_features: dict[str, array[float | bool]]
-        local_view: Points within two transit durations of the transit center
-            folded on the reported period with 61 bins.
-        local_std: The standard deviations for each bin.
-        local_mask: A mask indicating whether the bin was empty.
-        local_scale: The scale factor used in normalization.
-        local_scale_present: Whether the scale factor could be reported.
-    local_scale: float | None
-        Scale factor used in normalization.
-    local_depth: float | None
-        The transit depth pre-normalization (not used as a feature).
+    Returns:
+        A tuple `(local_features, local_scale, local_depth)` where:
+        - `local_features` is a dict mapping feature names to their values. The
+          features are:
+          - "local_view": Points within two transit durations of the transit
+            center folded on the reported period with 61 bins.
+          - "local_std": The standard deviations for each bin.
+          - "local_mask": A mask indicating whether the bin was empty.
+          - "local_scale": The scale factor used in normalization.
+          - "local_scale_present": Whether the scale factor could be reported.
+        - `local_scale` is the normalization scale factor.
+        - `local_depth` is the transit depth before normalization (not used as a
+          feature).
     """
     view, std, mask, scale, depth = preprocess.local_view(
         tic, time, flux, period, duration
@@ -108,11 +107,10 @@ def aperture_features(
 
     Note: time/flux should be folded *before* being passed to this method.
 
-    Returns
-    -------
-    aperture_features: dict[str, array[float]]
-        local_aperture_{aperture_name}: Points within two transit durations of
-            the transit center folded on the reported period with 61 bins.
+    Returns:
+        A dict mapping feature names to their values. The features are:
+        - f"local_aperture_{aperture_name}": Points within two transit durations
+          of the transit center folded on the reported period with 61 bins.
     """
     view, _, _, _, _ = preprocess.local_view(
         tic, time, flux, period, duration, scale=scale, depth=depth
@@ -135,13 +133,12 @@ def odd_features(
 
     Note: time/flux should be folded *before* being passed to this method.
 
-    Returns
-    -------
-    odd_features: dict[str, array[float | bool]]
-        local_view_odd: Points within two transit durations of an odd transit
-            center folded on the reported period with 61 bins.
-        local_std_odd: The standard deviations for each bin.
-        local_mask_odd: A mask indicating whether the bin was empty.
+    Returns:
+        A dict mapping feature names to their values. The features are:
+        - "local_view_odd": Points within two transit durations of an odd
+          transit center folded on the reported period with 61 bins.
+        - "local_std_odd": The standard deviations for each bin.
+        - "local_mask_odd": A mask indicating whether the bin was empty.
     """
     view, std, mask, _, _ = preprocess.local_view(
         tic, time[odd_mask], flux[odd_mask], period, duration, scale=scale, depth=depth
@@ -168,13 +165,12 @@ def even_features(
 
     Note: time/flux should be folded *before* being passed to this method.
 
-    Returns
-    -------
-    even_features: dict[str, array[float | bool]]
-        local_view_even: Points within two transit durations of an even transit
-            center folded on the reported period with 61 bins.
-        local_std_even: The standard deviations for each bin.
-        local_mask_even: A mask indicating whether the bin was empty.
+    Returns:
+        A dict mapping feature names to their values. The features are:
+        - "local_view_even": Points within two transit durations of an even
+          transit center folded on the reported period with 61 bins.
+        - "local_std_even": The standard deviations for each bin.
+        - "local_mask_even": A mask indicating whether the bin was empty.
     """
     view, std, mask, _, _ = preprocess.local_view(
         tic,
@@ -206,18 +202,17 @@ def secondary_features(
 
     Note: time/flux should be folded *before* being passed to this method.
 
-    Returns
-    -------
-    secondary_features: dict[str, array[float | bool]]
-        secondary_view: Points within two transit durations of the most
-            significant secondary transit, folded on the reported period with
-            61 bins.
-            secondary_std: The standard deviations for each bin.
-            secondary_mask: A mask indicating whether the bin was empty.
-            secondary_phase: The phase of the secondary transit's center.
-            secondary_scale: The normalization scale factor.
-        secondary_scale: float | None
-            Scale factor used in normalization.
+    Returns:
+        A tuple `(secondary_features, secondary_scale)` where:
+        - `secondary_features` is a dict mapping feature names to their values.
+          The features are:
+          - "secondary_view": Points within two transit durations of the most
+            significant secondary transit, folded on the reported period with 61
+            bins.
+          - "secondary_std": The standard deviations for each bin.
+          - "secondary_mask": A mask indicating whether the bin was empty.
+          - "secondary_phase": The phase of the secondary transit's center.
+        - `secondary_scale` is the normalization scale factor.
     """
     (_, _, _, secondary_scale, _), _ = preprocess.secondary_view(
         tic, time, flux, period, duration
@@ -258,15 +253,14 @@ def sample_segments_features(
 
     Note: time/flux should be folded *before* being passed to this method.
 
-    Returns
-    -------
-    sample_segments_features: dict[str, array[float]]
-        sample_segments_view: Global views of up to seven of the folds that
-            contain the most points. Each fold is independently binned with 201
-            bins.
-        sample_segments_local_view: Local views of up to four of the folds that
-            contain the most points. Each fold is independently binned with 61
-            bins.
+    Returns:
+        A dict mapping feature names to their values. The features are:
+        - "sample_segments_view": Global views of up to seven of the folds that
+          contain the most points. Each fold is independently binned with 201
+          bins.
+        - "sample_segments_local_view": Local views of up to four of the folds
+          that contain the most points. Each fold is independently binned with
+          61 bins.
     """
     view = preprocess.sample_segments_view(tic, time, flux, fold_num, period, duration)
     odd_view = preprocess.sample_segments_view(
@@ -314,14 +308,13 @@ def double_period_features(
     This is to center the view between the two transits contained in the view,
     rather than having one in the middle and the other split at the boundaries.
 
-    Returns
-    -------
-    double_period_features: dict[str, array[float | bool]]
-        global_view_double_period: The full light curve folded on double the
-            reported period with 201 bins.
-        global_view_double_period_std: The standard deviation for each bin.
-        global_view_double_period_mask: A mask indicating whether each bin was
-            empty.
+    Returns:
+        A dict mapping feature names to their values. The features are:
+        - "global_view_double_period": The full light curve folded on double the
+          reported period with 201 bins.
+        - "global_view_double_period_std": The standard deviation for each bin.
+        - "global_view_double_period_mask": A mask indicating whether each bin
+          was empty.
     """
     view, std, mask, _, _ = preprocess.global_view(tic, time, flux, period * 2)
     return {
@@ -343,20 +336,20 @@ def half_period_features(
 
     Note: time/flux should be folded *before* being passed to this method.
 
-    Returns
-    -------
-    half_period_features: dict[str, array[float | bool]]
-        global_view_half_period: The full light curve folded on half the
-            reported period with 201 bins.
-        global_view_half_period_std: The standard deviation for each global
-            bin.
-        global_view_half_period_mask: A mask indicating whether each global bin
-            was empty.
-        local_view_half_period_std: Points within two transit durations of the
-            transit center folded on half the reported period with 61 bins.
-        local_view_half_period_std: The standard deviation for each local bin.
-        local_view_half_period_mask: A mask indicating whether each local bin
-            was empty.
+    Returns:
+        A dict mapping feature names to their values. The features are:
+        - "global_view_half_period": The full light curve folded on half the
+          reported period with 201 bins.
+        - "global_view_half_period_std": The standard deviation for each global
+          bin.
+        - "global_view_half_period_mask": A mask indicating whether each global
+          bin was empty.
+        - "local_view_half_period_std": Points within two transit durations of
+          the transit center folded on half the reported period with 61 bins.
+        - "local_view_half_period_std": The standard deviation for each local
+          bin.
+        - "local_view_half_period_mask": A mask indicating whether each local
+          bin was empty.
     """
     global_view, global_std, global_mask, _, _ = preprocess.global_view(
         tic, time, flux, period / 2

@@ -1,6 +1,4 @@
-"""
-Make astronet predictions without creating and serializing tf.training.Examples.
-"""
+"""Make astronet predictions without creating and serializing tf.training.Examples."""
 
 from functools import partial
 import json
@@ -59,39 +57,28 @@ def lightcurve_view_features(
 
     Views are shown in figure 8 of https://doi.org/10.3847/1538-3881/acad85
 
-    Params
-    ------
-    tic: int
-        TIC ID of target.
-        Note: pretty sure it's not used by any of the methods it's passed to.
-    time: array[float]
-        Array of time values in lightcurve.
-    flux: array[float]
-        Array of flux values in lightcurve.
-    period: float
-        Period of transit signal; used for lightcurve folding.
-    epoch: float
-        Reference transit time for signal; used for lightcurve folding.
-    duration: float
-        Duration of transits.
-    breakspace: float | None
-        Breakspace to use in spline detrending. None indicates that various
-        breakspaces should be tried and the best selected.
-    aperture_fluxes: dict[str, tuple[np.ndarray, np.ndarray]]
-        For triage model: empty dict.
-        For vetting model: {aperture_name: (lightcurve_time, lightcurve_flux)}
-        for all apertures to be considered ('s', 'm', 'l').
+    Args:
+        tic: TIC ID of target. Note: doesn't seem to be used by any of the
+            methods it's passed to.
+        time: Array of time values in lightcurve.
+        flux: Array of flux values in lightcurve.
+        period: Period of transit signal; used for lightcurve folding.
+        epoch: Reference transit time for signal; used for lightcurve folding.
+        duration: Duration of transits.
+        breakspace: Breakspace to use in spline detrending. None indicates that
+            various breakspaces should be tried and the best selected.
+        aperture_fluxes: For the triage model, an empty dict; for the vetting
+            model, a dict mapping aperture names to a flux array for that
+            aperture. Aperture names are "s", "m", and "l".
 
 
-    Returns
-    -------
-    features: dict[str, float | array[float]]
-        Dict of {feature_name: feature_value} for features that are or depend on
-        views of the lightcurve.
-    fold_num: array[float]
-        Array containing the fold number of each point in the lightcurve. Used
-        to calculate the total number of folds in the lightcurve for the
-        "n_folds" feature.
+    Returns:
+        A tuple `(features, fold_num)` where:
+        - `features` is a dict mapping feature names to their values, including
+          all features that are or depend on views of the light curve.
+        - `fold_num` is an array containing the fold number of each point in the
+          light curve. This is used to calculate the total number of folds in
+          the light curve for the "n_folds" feature.
     """
     all_features = {}
 
@@ -216,26 +203,20 @@ def assemble_astronet_inputs(
     See section 3 of https://doi.org/10.3847/1538-3881/acad85 for a full account
     of the model input representation.
 
-    Params
-    ------
-    tce: pd.Series
-        Row of dataframe containing relevant TCE parameters. Should include
-        "Astro ID", "Per", "Epoc", "Dur", "Depth", "Tmag", "SMass", "SRad",
-        "SRadEst".
-    time: array[float]
-        Array of time values in lightcurve.
-    flux: array[float]
-        Array of flux values in lightcurve.
-    aperture_fluxes: dict[str, tuple[np.ndarray, np.ndarray]]
-        For triage model: empty dict.
-        For vetting model: {aperture_name: (lightcurve_time, lightcurve_flux)}
-            for all apertures to be considered ('s', 'm', 'l').
+    Args:
+        tce: Dataframe row containing relevant TCE parameters. Should include
+            "Astro ID", "Per", "Epoc", "Dur", "Depth", "Tmag", "SMass", "SRad",
+            "SRadEst".
+        time: Array of time values in lightcurve.
+        flux: Array of flux values in lightcurve.
+        aperture_fluxes: For the triage model, an emptry dict; for the vetting
+            model, a dict mapping aperture names to a flux array for that
+            aperture. Aperture names are "s", "m", and "l".
 
-    Returns
-    -------
-    features: dict[str, float | array[float]]
-        Dict of {feature_name: feature_value} for all inputs for the lightcurve.
-        Empty if inputs could not be correctly assembled.
+    Returns:
+        A dict mapping feature names to their values, including all input
+        features. The dict is empty if the features could not be assembled
+        correctly.
     """
     all_features = {}
 
@@ -361,13 +342,12 @@ def build_dataset(
     """
     Create Dataset object containing input tensors for all TCEs.
 
-    Returns
-    -------
-    good_tces: list[int]
-        List of Astro IDs of TCEs included in the dataset
-        Some TCEs may be excluded when lightcurve fetching or detrending fails.
-    dataset: tf.data.Dataset
-        Tensorflow dataset containing Astronet model inputs
+    Returns:
+        A tuple `(good_tces, dataset)` where:
+        - `good_tces` is a list of Astro IDs of TCEs included in the dataset.
+          Some TCEs may be excluded when light curve fetching or detrending
+          fails.
+        - `dataset` is a tensorflow dataset containing astronet model inputs.
     """
     prep_input_wrapper = partial(prepare_input, feature_cfg, get_lc=get_lc, mode=mode)
     all_tces_features: list[dict[str, tf.Tensor]]
@@ -415,11 +395,9 @@ def batch_predict(
 
     Assembles dataset in parallel, then runs model predictions in serial.
 
-    Returns
-    -------
-    predictions: pd.DataFrame
-        Indexed by Astro ID and model number. Column names are output labels and
-        values are model predictions.
+    Returns:
+        A dataframe indexed by Astro ID and model number, whose column names
+        are output labels and whose values are model predictions.
     """
     model_dirs = files.find_checkpoint_paths(Path(checkpoints_dir), nruns)
     first_model_dir = model_dirs[0]
