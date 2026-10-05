@@ -1,0 +1,156 @@
+{
+  "arm_dirs": {
+    "4class": "/pdo/astronet-data/models/vetting/experimental/pablomer/binary_pvsnotp/20260805/4class",
+    "binary": "/pdo/astronet-data/models/vetting/experimental/pablomer/binary_pvsnotp/20260805/binary"
+  },
+  "members": {
+    "4class": [
+      "AstroCNNModelVetting_pablomer_final_20260805_202834"
+    ],
+    "binary": [
+      "AstroCNNModelVetting_pablomer_final_binary_20260805_204213"
+    ]
+  },
+  "val_thresholds": {
+    "4class": 0.6705342531204224,
+    "binary": 0.7527494430541992
+  },
+  "test": {
+    "4class": {
+      "n": 1548,
+      "n_pos": 582,
+      "average_precision": 0.9930101512704002,
+      "roc_auc": 0.9950018854097742,
+      "at_val_thr_threshold": 0.6705342531204224,
+      "at_val_thr_precision": 0.9655765920826161,
+      "at_val_thr_recall": 0.9639175257731959,
+      "at_val_thr_f1": 0.9647463456577816,
+      "at_val_thr_n_flagged": 581,
+      "at_val_thr_tp": 561,
+      "at_val_thr_fp": 20,
+      "at_val_thr_fn": 21
+    },
+    "binary": {
+      "n": 1548,
+      "n_pos": 582,
+      "average_precision": 0.9911091888756453,
+      "roc_auc": 0.9940627378995823,
+      "at_val_thr_threshold": 0.7527494430541992,
+      "at_val_thr_precision": 0.9752650176678446,
+      "at_val_thr_recall": 0.9484536082474226,
+      "at_val_thr_f1": 0.9616724738675959,
+      "at_val_thr_n_flagged": 566,
+      "at_val_thr_tp": 552,
+      "at_val_thr_fp": 14,
+      "at_val_thr_fn": 30
+    },
+    "4class_at_production_0.215": {
+      "threshold": 0.215,
+      "precision": 0.9163987138263665,
+      "recall": 0.979381443298969,
+      "f1": 0.9468438538205979,
+      "n_flagged": 622,
+      "tp": 570,
+      "fp": 52,
+      "fn": 12
+    }
+  },
+  "s93": {
+    "unanimous": {
+      "4class": {
+        "n": 279,
+        "n_pos": 95,
+        "average_precision": 0.6388995232744297,
+        "roc_auc": 0.7293478260869565,
+        "n_unscored": 4,
+        "at_val_thr_threshold": 0.6705342531204224,
+        "at_val_thr_precision": 0.35714285714285715,
+        "at_val_thr_recall": 1.0,
+        "at_val_thr_f1": 0.5263157894736842,
+        "at_val_thr_n_flagged": 266,
+        "at_val_thr_tp": 95,
+        "at_val_thr_fp": 171,
+        "at_val_thr_fn": 0
+      },
+      "binary": {
+        "n": 279,
+        "n_pos": 95,
+        "average_precision": 0.6233016011769882,
+        "roc_auc": 0.7344965675057208,
+        "n_unscored": 4,
+        "at_val_thr_threshold": 0.7527494430541992,
+        "at_val_thr_precision": 0.3667953667953668,
+        "at_val_thr_recall": 1.0,
+        "at_val_thr_f1": 0.536723163841808,
+        "at_val_thr_n_flagged": 259,
+        "at_val_thr_tp": 95,
+        "at_val_thr_fp": 164,
+        "at_val_thr_fn": 0
+      }
+    },
+    "any_planet": {
+      "4class": {
+        "n": 370,
+        "n_pos": 130,
+        "average_precision": 0.5705506703507064,
+        "roc_auc": 0.6615064102564103,
+        "n_unscored": 4,
+        "at_val_thr_threshold": 0.6705342531204224,
+        "at_val_thr_precision": 0.36079545454545453,
+        "at_val_thr_recall": 0.9769230769230769,
+        "at_val_thr_f1": 0.5269709543568465,
+        "at_val_thr_n_flagged": 352,
+        "at_val_thr_tp": 127,
+        "at_val_thr_fp": 225,
+        "at_val_thr_fn": 3
+      },
+      "binary": {
+        "n": 370,
+        "n_pos": 130,
+        "average_precision": 0.5551567482415949,
+        "roc_auc": 0.6675961538461539,
+        "n_unscored": 4,
+        "at_val_thr_threshold": 0.7527494430541992,
+        "at_val_thr_precision": 0.3673469387755102,
+        "at_val_thr_recall": 0.9692307692307692,
+        "at_val_thr_f1": 0.53276955602537,
+        "at_val_thr_n_flagged": 343,
+        "at_val_thr_tp": 126,
+        "at_val_thr_fp": 217,
+        "at_val_thr_fn": 4
+      }
+    },
+    "strict_planet": {
+      "4class": {
+        "n": 370,
+        "n_pos": 95,
+        "average_precision": 0.5720787926102644,
+        "roc_auc": 0.7345071770334928,
+        "n_unscored": 4,
+        "at_val_thr_threshold": 0.6705342531204224,
+        "at_val_thr_precision": 0.26988636363636365,
+        "at_val_thr_recall": 1.0,
+        "at_val_thr_f1": 0.4250559284116331,
+        "at_val_thr_n_flagged": 352,
+        "at_val_thr_tp": 95,
+        "at_val_thr_fp": 257,
+        "at_val_thr_fn": 0
+      },
+      "binary": {
+        "n": 370,
+        "n_pos": 95,
+        "average_precision": 0.5360789494032648,
+        "roc_auc": 0.728421052631579,
+        "n_unscored": 4,
+        "at_val_thr_threshold": 0.7527494430541992,
+        "at_val_thr_precision": 0.27696793002915454,
+        "at_val_thr_recall": 1.0,
+        "at_val_thr_f1": 0.4337899543378996,
+        "at_val_thr_n_flagged": 343,
+        "at_val_thr_tp": 95,
+        "at_val_thr_fp": 248,
+        "at_val_thr_fn": 0
+      }
+    }
+  }
+}

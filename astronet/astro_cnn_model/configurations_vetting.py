@@ -944,6 +944,47 @@ def pablomer_final():
   return config
 
 
+def pablomer_final_binary():
+  """P vs not-P binary variant of pablomer_final().
+
+  Identical to pablomer_final() in every other respect: same features,
+  same hparams, same pretrained init, same sample weighting (with a
+  single label column, input_ds uses primary_class=0 and the same
+  non_primary_downweight_factor condition, so per-example weights match
+  the 4-class run exactly). Only the head changes: a single sigmoid on
+  disp_p instead of a 4-way softmax over [disp_p, disp_e, disp_n, disp_j].
+  Training labels are strictly one-hot, so the positive set is identical
+  to the argmax==0 set of the 4-class model.
+  """
+  config = pablomer_final()
+  config["inputs"]["label_columns"] = ["disp_p"]
+  # No-op with a single output unit (sigmoid either way); explicit for clarity.
+  config["inputs"]["exclusive_labels"] = False
+  # input_ds requires label_scheme=binary for single-label configs.
+  config["inputs"]["label_scheme"] = "binary"
+  return config
+
+
+def pablomer_final_nopretrain():
+  """pablomer_final() trained from scratch (no triage-pretrained conv towers).
+
+  For the P-vs-notP representation experiment: the pretrained backbone was
+  itself trained on 5-class triage labels, so with pretrained init both arms
+  inherit multi-class structure. Removing it isolates the effect of the
+  vetting label scheme itself.
+  """
+  config = pablomer_final()
+  config["init_from_pretrained_model"] = False
+  return config
+
+
+def pablomer_final_binary_nopretrain():
+  """pablomer_final_binary() trained from scratch. See pablomer_final_nopretrain."""
+  config = pablomer_final_binary()
+  config["init_from_pretrained_model"] = False
+  return config
+
+
 
 def pablomer_cosine():
   triage_config = configurations.pablomer()

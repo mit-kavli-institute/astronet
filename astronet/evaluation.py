@@ -21,6 +21,21 @@ def calc_keras_metrics(model, dataset):
 def export_dash_file(labels, predictions, astro_ids, results_path):
    model_no = 1
 
+   labels = np.asarray(labels)
+   predictions = np.asarray(predictions)
+
+   # Single-output (P vs not-P) models: no per-class columns to export.
+   if predictions.ndim == 2 and predictions.shape[1] == 1:
+      df = pd.DataFrame({
+          'astro_id': astro_ids,
+          'model_no': model_no,
+          'disp_p': predictions[:, 0],
+          'true_label': np.where(labels.reshape(-1) > 0, 'p', 'not_p'),
+      })
+      df.to_csv(results_path, index=False)
+      print(f"✅ Exported to {results_path}")
+      return
+
    # Step 1: Verify one-hot encoding
    print(labels)
 

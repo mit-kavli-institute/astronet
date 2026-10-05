@@ -1,0 +1,206 @@
+{
+  "arm_dirs": {
+    "4class": "/pdo/astronet-data/models/vetting/experimental/pablomer/binary_pvsnotp_nopretrain/20260806/4class",
+    "binary": "/pdo/astronet-data/models/vetting/experimental/pablomer/binary_pvsnotp_nopretrain/20260806/binary"
+  },
+  "members": {
+    "4class": [
+      "AstroCNNModelVetting_pablomer_final_nopretrain_20260806_113052",
+      "AstroCNNModelVetting_pablomer_final_nopretrain_20260806_115703",
+      "AstroCNNModelVetting_pablomer_final_nopretrain_20260806_122116",
+      "AstroCNNModelVetting_pablomer_final_nopretrain_20260806_124641",
+      "AstroCNNModelVetting_pablomer_final_nopretrain_20260806_131318"
+    ],
+    "binary": [
+      "AstroCNNModelVetting_pablomer_final_binary_nopretrain_20260806_114512",
+      "AstroCNNModelVetting_pablomer_final_binary_nopretrain_20260806_120927",
+      "AstroCNNModelVetting_pablomer_final_binary_nopretrain_20260806_123412",
+      "AstroCNNModelVetting_pablomer_final_binary_nopretrain_20260806_130040",
+      "AstroCNNModelVetting_pablomer_final_binary_nopretrain_20260806_132643"
+    ]
+  },
+  "val_thresholds": {
+    "4class": 0.6533842444419861,
+    "binary": 0.5919289380311966
+  },
+  "test": {
+    "4class": {
+      "n": 1548,
+      "n_pos": 582,
+      "average_precision": 0.9933228119119665,
+      "roc_auc": 0.9953380575298998,
+      "member_ap": [
+        0.9915081994653733,
+        0.9925550933398073,
+        0.9920812649361597,
+        0.99159495864796,
+        0.9925794591332779
+      ],
+      "member_roc_auc": [
+        0.9942726231386025,
+        0.9949805411481789,
+        0.9945198608354144,
+        0.9941232133074356,
+        0.9947493116475634
+      ],
+      "at_val_thr_threshold": 0.6533842444419861,
+      "at_val_thr_precision": 0.9587628865979382,
+      "at_val_thr_recall": 0.9587628865979382,
+      "at_val_thr_f1": 0.9587628865979382,
+      "at_val_thr_n_flagged": 582,
+      "at_val_thr_tp": 558,
+      "at_val_thr_fp": 24,
+      "at_val_thr_fn": 24
+    },
+    "binary": {
+      "n": 1548,
+      "n_pos": 582,
+      "average_precision": 0.9934171328190468,
+      "roc_auc": 0.9953754099876916,
+      "member_ap": [
+        0.9924929660115844,
+        0.9919215547504161,
+        0.9920063076074687,
+        0.9902923081456562,
+        0.9920487723194735
+      ],
+      "member_roc_auc": [
+        0.9948880493479328,
+        0.9948613690209388,
+        0.994542983785476,
+        0.9933992871016627,
+        0.9943633362503824
+      ],
+      "at_val_thr_threshold": 0.5919289380311966,
+      "at_val_thr_precision": 0.9621342512908778,
+      "at_val_thr_recall": 0.9604810996563574,
+      "at_val_thr_f1": 0.9613069647463456,
+      "at_val_thr_n_flagged": 581,
+      "at_val_thr_tp": 559,
+      "at_val_thr_fp": 22,
+      "at_val_thr_fn": 23
+    },
+    "4class_at_production_0.215": {
+      "threshold": 0.215,
+      "precision": 0.8753799392097265,
+      "recall": 0.9896907216494846,
+      "f1": 0.9290322580645162,
+      "n_flagged": 658,
+      "tp": 576,
+      "fp": 82,
+      "fn": 6
+    }
+  },
+  "s93": {
+    "unanimous": {
+      "4class": {
+        "n": 279,
+        "n_pos": 95,
+        "average_precision": 0.7084305721227455,
+        "roc_auc": 0.7728832951945079,
+        "n_unscored": 4,
+        "at_val_thr_threshold": 0.6533842444419861,
+        "at_val_thr_precision": 0.36293436293436293,
+        "at_val_thr_recall": 0.9894736842105263,
+        "at_val_thr_f1": 0.5310734463276836,
+        "at_val_thr_n_flagged": 259,
+        "at_val_thr_tp": 94,
+        "at_val_thr_fp": 165,
+        "at_val_thr_fn": 1,
+        "member_ap": [
+          0.673818049147334,
+          0.7026618790371802,
+          0.6749271681060786,
+          0.7029372199574788,
+          0.6850247565688045
+        ]
+      },
+      "binary": {
+        "n": 279,
+        "n_pos": 95,
+        "average_precision": 0.6875638949766739,
+        "roc_auc": 0.7551487414187641,
+        "n_unscored": 4,
+        "at_val_thr_threshold": 0.5919289380311966,
+        "at_val_thr_precision": 0.35658914728682173,
+        "at_val_thr_recall": 0.968421052631579,
+        "at_val_thr_f1": 0.5212464589235128,
+        "at_val_thr_n_flagged": 258,
+        "at_val_thr_tp": 92,
+        "at_val_thr_fp": 166,
+        "at_val_thr_fn": 3,
+        "member_ap": [
+          0.6939070723657502,
+          0.6847730829811637,
+          0.6767100559952322,
+          0.65532470941624,
+          0.6591459664667881
+        ]
+      }
+    },
+    "any_planet": {
+      "4class": {
+        "n": 370,
+        "n_pos": 130,
+        "average_precision": 0.6506343168263116,
+        "roc_auc": 0.7190384615384615,
+        "n_unscored": 4,
+        "at_val_thr_threshold": 0.6533842444419861,
+        "at_val_thr_precision": 0.36470588235294116,
+        "at_val_thr_recall": 0.9538461538461539,
+        "at_val_thr_f1": 0.5276595744680851,
+        "at_val_thr_n_flagged": 340,
+        "at_val_thr_tp": 124,
+        "at_val_thr_fp": 216,
+        "at_val_thr_fn": 6
+      },
+      "binary": {
+        "n": 370,
+        "n_pos": 130,
+        "average_precision": 0.6251574841536153,
+        "roc_auc": 0.7012179487179487,
+        "n_unscored": 4,
+        "at_val_thr_threshold": 0.5919289380311966,
+        "at_val_thr_precision": 0.36363636363636365,
+        "at_val_thr_recall": 0.9538461538461539,
+        "at_val_thr_f1": 0.5265392781316348,
+        "at_val_thr_n_flagged": 341,
+        "at_val_thr_tp": 124,
+        "at_val_thr_fp": 217,
+        "at_val_thr_fn": 6
+      }
+    },
+    "strict_planet": {
+      "4class": {
+        "n": 370,
+        "n_pos": 95,
+        "average_precision": 0.6419673987075392,
+        "roc_auc": 0.768,
+        "n_unscored": 4,
+        "at_val_thr_threshold": 0.6533842444419861,
+        "at_val_thr_precision": 0.27647058823529413,
+        "at_val_thr_recall": 0.9894736842105263,
+        "at_val_thr_f1": 0.4321839080459771,
+        "at_val_thr_n_flagged": 340,
+        "at_val_thr_tp": 94,
+        "at_val_thr_fp": 246,
+        "at_val_thr_fn": 1
+      },
+      "binary": {
+        "n": 370,
+        "n_pos": 95,
+        "average_precision": 0.613058366321659,
+        "roc_auc": 0.7481722488038278,
+        "n_unscored": 4,
+        "at_val_thr_threshold": 0.5919289380311966,
+        "at_val_thr_precision": 0.2697947214076246,
+        "at_val_thr_recall": 0.968421052631579,
+        "at_val_thr_f1": 0.4220183486238532,
+        "at_val_thr_n_flagged": 341,
+        "at_val_thr_tp": 92,
+        "at_val_thr_fp": 249,
+        "at_val_thr_fn": 3
+      }
+    }
+  }
+}
