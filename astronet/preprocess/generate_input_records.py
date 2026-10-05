@@ -29,6 +29,14 @@ from astronet.preprocess import preprocess
 
 SKIPPED_TICS=[]
 
+# Version label of the preprocessing implemented in this file: cadence-aware binning +
+# scatter weighting (weights computed after detrending). It matches the training data
+# `dec2025_cad_scat_v5_aug` that AstroNet-Vetting-v2 was trained on, and the
+# `preprocessing.json` shipped with that model. Edit this file in place when the
+# preprocessing changes, and bump the label (cad_scat_v6, ...). Don't copy the file
+# under a new name.
+PREPROCESSING_VERSION = "cad_scat_v5"
+
 # Import-safe FLAGS default. This module normally runs as a script (FLAGS is set by
 # argparse in __main__ at the bottom), but QLP IMPORTS create() for inference, where
 # __main__ never runs. Without this, FLAGS is undefined and every TCE fails with
@@ -124,20 +132,15 @@ def _standard_views(ex, tic, time, flux, period, epoc, duration, bkspace, apertu
   else:
     tag = f'_{bkspace}'
 
-  # New: add Gaussian noise to the light curve
-  # TODO:
-
   detrended_time, detrended_flux, transit_mask = preprocess.detrend_and_filter(tic, time, flux, period, epoc, duration, bkspace)
 
   # Calculate scatter weights on detrended data (before phase folding)
   scatter_weights_detrended = preprocess.split_and_calculate_weights(detrended_time, detrended_flux, gap_width=2)
 
   if FLAGS.remove_random_points:
-    # print('DEBUG: detrended time size before removal',detrended_time.shape)
     detrended_time, detrended_flux, mask_removal = preprocess.remove_random_datapoints(detrended_time, detrended_flux, 0.1)
     scatter_weights_detrended = scatter_weights_detrended[mask_removal]
     transit_mask = transit_mask[mask_removal]
-    # print('DEBUG: detrended time size after removal',detrended_time.shape)
 
   time, flux, fold_num, tr_mask = preprocess.phase_fold_and_sort_light_curve(
       detrended_time, detrended_flux, transit_mask, period, epoc)
@@ -441,7 +444,8 @@ def create(
   except Exception as e:
     logging.debug(f"Warning: could not read existing records from {file_name}: {e}")
   tce_dicts = tce_table.to_dict(orient='records')
-  logging.info(f"[{shard_name}] Starting processing with {num_processes} processes on {len(tce_dicts)} TCEs")
+  logging.info(f"[{shard_name}] Starting processing with {num_processes} processes on {len(tce_dicts)} TCEs "
+               f"(preprocessing {PREPROCESSING_VERSION})")
 
   worker = ProcessRecordWorker(existing, get_lightcurve, mode, training, _process_tce, tce_table, output_dir, 5)
 
@@ -475,18 +479,13 @@ def main(_):
 
   global tce_table
   tce_table = pd.read_csv(FLAGS.input_tce_csv_file, header=0, low_memory=False)
-  # TODO: Remove this - just temporary to study the desintegrating exoplanet
-  tce_table = tce_table[tce_table["Astro ID"]==46637608501]
-  print("Modified tce table now has length", len(tce_table))
-  add_noise = True
-
   num_tces = len(tce_table)
   logging.info("Read %d TCEs", num_tces)
 
   # Further split training TCEs into file shards.
   file_shards = []  # List of (tce_table_shard, file_name).
   boundaries = np.linspace(
-      0, len(tce_table), FLAGS.num_shards + 1).astype(np.int)
+      0, len(tce_table), FLAGS.num_shards + 1).astype(int)
   base_suffix = "_aug" if FLAGS.remove_random_points else ""
   file_suffix = FLAGS.file_suffix or ""
   for i in range(FLAGS.num_shards):
