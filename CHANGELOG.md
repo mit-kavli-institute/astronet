@@ -16,6 +16,11 @@ preprocessing it needs (`cad_scat_v5`).**
   `PREPROCESSING_VERSION = "cad_scat_v5"` and logs it.
   - Verified to reproduce the model's training records (`dec2025_cad_scat_v5_aug`).
   - **Not compatible** with models trained on ≤ 3.0.1 preprocessing.
+- **Triage unchanged:** `create(mode="triage")`, which QLP's `estools astronet --triage` uses, and
+  script-mode `--mode triage` run a frozen verbatim copy of the 3.0.1 preprocessing
+  (`astronet/preprocess/legacy_v301/`, `TRIAGE_PREPROCESSING_VERSION = "legacy_v301"`). The
+  production AstroNet-Triage model was trained on 3.0.1 records, so its inputs must not
+  change. Only `mode="vetting"` uses `cad_scat_v5`.
 - **Ensemble scoring:** average `disp_p` over the 10 members. With QLP's filter, use
   `astronet-filter --score-calc avg`; its default `max` is wrong for this ensemble.
 - **Script mode fixed:** removed a leftover debug filter that wrote a single TCE, and replaced

@@ -35,7 +35,12 @@ SKIPPED_TICS=[]
 # `preprocessing.json` shipped with that model. Edit this file in place when the
 # preprocessing changes, and bump the label (cad_scat_v6, ...). Don't copy the file
 # under a new name.
+#
+# This applies to mode="vetting" only. mode="triage" is dispatched to a frozen copy of the
+# astronet 3.0.1 preprocessing (astronet/preprocess/legacy_v301), because the production
+# AstroNet-Triage model was trained on 3.0.1 records.
 PREPROCESSING_VERSION = "cad_scat_v5"
+TRIAGE_PREPROCESSING_VERSION = "legacy_v301"
 
 # Import-safe FLAGS default. This module normally runs as a script (FLAGS is set by
 # argparse in __main__ at the bottom), but QLP IMPORTS create() for inference, where
@@ -426,6 +431,12 @@ def create(
     num_processes: int = None,
 ):
   shard_name = os.path.basename(file_name)
+  if mode == "triage":
+    # Keep AstroNet-Triage's inputs exactly as in astronet 3.0.1 (see TRIAGE_PREPROCESSING_VERSION).
+    from astronet.preprocess.legacy_v301 import generate_input_records as legacy_v301
+    logging.info(f"[{shard_name}] mode=triage -> preprocessing {TRIAGE_PREPROCESSING_VERSION}")
+    return legacy_v301.create(tce_table, file_name, get_lightcurve, mode, training,
+                              output_dir, num_processes=num_processes)
   shard_size = len(tce_table)
   num_processes = num_processes or 1
 
@@ -497,11 +508,19 @@ def main(_):
         os.path.join(FLAGS.output_dir, "%.5d-of-%.5d%s%s" % (i, FLAGS.num_shards, base_suffix, file_suffix))
     ))
 
+  # Triage records use the frozen 3.0.1 code end to end, including its light-curve reader.
+  reader = get_lightcurve
+  if FLAGS.mode == "triage":
+    from astronet.preprocess.legacy_v301 import generate_input_records as legacy_v301
+    legacy_v301.FLAGS = FLAGS
+    legacy_v301.tce_table = tce_table
+    reader = legacy_v301.get_lightcurve
+
   logging.info("Processing %d total file shards", len(file_shards))
   for start, end, file_shard in file_shards:
     logging.info(f'Starting shard {file_shard}')
     logging.info(f'{FLAGS.output_dir}')
-    create(tce_table[start:end], file_shard, get_lightcurve, FLAGS.mode, not FLAGS.not_training, output_dir=FLAGS.output_dir, num_processes=35)
+    create(tce_table[start:end], file_shard, reader, FLAGS.mode, not FLAGS.not_training, output_dir=FLAGS.output_dir, num_processes=35)
   logging.info("Finished processing %d total file shards", len(file_shards))
 
   ### [ADDED] At the very end, write the problematic TICs to a file
