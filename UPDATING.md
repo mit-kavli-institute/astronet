@@ -54,5 +54,5 @@ PYTHONPATH=$(pwd):$PYTHONPATH \
 ```bash
 git checkout v3.0.1
 # and ask swadm to point /sw/astronet back to astronet-3.0.1, and restore the
-# cshallue model from /pdo/astronet-data/models/vetting/archive/  (see CHANGELOG.md).
+# cshallue model from /pdo/astronet-data/models/vetting/legacy/ into production/  (see CHANGELOG.md).
 ```
