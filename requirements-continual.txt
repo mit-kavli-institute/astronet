@@ -1,0 +1,9 @@
+# Runtime versions observed in the working PDO experiment environment.
+# Python 3.11. CPU is sufficient for validation and the synthetic smoke test.
+tensorflow==2.12.0
+keras==2.12.0
+numpy==1.23.5
+pandas==2.3.3
+scikit-learn==1.7.2
+absl-py==2.3.1
+h5py==3.12.1

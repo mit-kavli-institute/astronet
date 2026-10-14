@@ -33,7 +33,7 @@ def calc_auc_scores(y_label, y_pred, primary_class):
   # Lazily import sklearn as it is currently only used within this function.
   # This makes the code backwards-compatible with environments that don't have
   # sklearn installed.
-  import sklearn
+  from sklearn import metrics  # pylint: disable=import-outside-toplevel
 
   if np.ndim(y_label) == 2:
     y_label = y_label[:, primary_class]
@@ -41,8 +41,11 @@ def calc_auc_scores(y_label, y_pred, primary_class):
   elif np.ndim(y_label) != 1 or primary_class != 0:
     raise ValueError(
         f"y_label has shape {y_label.shape}, primary_class={primary_class}")
-  auc = sklearn.metrics.roc_auc_score(y_label, y_pred)
-  ap = sklearn.metrics.average_precision_score(y_label, y_pred)
+  if len(np.unique(y_label)) < 2:
+    # These slices cannot establish binary discrimination.
+    return {"roc_auc": float("nan"), "average_precision": float("nan")}
+  auc = metrics.roc_auc_score(y_label, y_pred)
+  ap = metrics.average_precision_score(y_label, y_pred)
   return {"roc_auc": auc, "average_precision": ap}
 
 

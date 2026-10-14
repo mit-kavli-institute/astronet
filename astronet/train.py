@@ -17,11 +17,17 @@ import datetime
 import os
 
 import numpy as np
-import tensorflow as tf
 from absl import app, flags, logging
 
 from astronet import evaluation, models, training
-from astronet.util import config_util
+from astronet.util import config_util, training_data
+
+flags.DEFINE_string(
+    "astro_ids_file", None,
+    "Headerless CSV of integer Astro IDs to exclude from training.")
+flags.DEFINE_string(
+    "weight_table_file", None,
+    "CSV with astro_id,sample_weight columns; unspecified IDs use 1.")
 
 flags.DEFINE_string("model", None, "Name of the model class.", required=True)
 
@@ -77,6 +83,8 @@ def main(_):
       "train_files": FLAGS.train_files,
       "eval_files": FLAGS.eval_files,
       "shuffle_buffer_size": FLAGS.shuffle_buffer_size,
+      "astro_ids_file": FLAGS.astro_ids_file,
+      "weight_table_file": FLAGS.weight_table_file,
   }
 
   # Load the config.
@@ -138,11 +146,17 @@ def main(_):
   config_util.save_config(config, model_dir)
 
   # Train and save model.
+  excluded = training_data.read_ids(FLAGS.astro_ids_file)
+  weight_table = (
+      training_data.make_weight_table(FLAGS.weight_table_file)
+      if FLAGS.weight_table_file else None)
   training.train(
       model,
       config,
       train_files=FLAGS.train_files,
-      shuffle_buffer_size=FLAGS.shuffle_buffer_size)
+      shuffle_buffer_size=FLAGS.shuffle_buffer_size,
+      exclude_astro_ids=excluded or None,
+      weight_table=weight_table)
 
   # Save the model in Keras format.
   models.save_model(model, model_dir, FLAGS.save_format)
@@ -150,7 +164,7 @@ def main(_):
   # Construct evaluation datasets.
   # This includes the training set and possibly additional datasets.
   eval_datasets = [("train", FLAGS.train_files)]
-  for file_pattern in FLAGS.eval_files:
+  for file_pattern in FLAGS.eval_files or []:
     if ":" in file_pattern:
       name, file_pattern = file_pattern.split(":")
     elif len(FLAGS.eval_files) == 1:

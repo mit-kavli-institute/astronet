@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "preprocessing_version": "cad_scat_v5",
+  "initial_checkpoint": "${ASTRONET_EXPERIMENT_DATA}/initial_binary_checkpoint",
+  "initialization": "vetting",
+  "output_dir": "../runs/replay-experiment",
+  "seed": 42,
+  "train_steps": 300,
+  "shuffle_buffer_size": 25000,
+  "exclude_astro_ids": "${ASTRONET_EXPERIMENT_DATA}/exclude_astro_ids.csv",
+  "replay_files": ["${ASTRONET_EXPERIMENT_DATA}/replay_buffer.tfrecord"],
+  "cycles": [
+    {"name": "n1", "new_files": ["${ASTRONET_EXPERIMENT_DATA}/finetune_delta_n1.tfrecord"]},
+    {"name": "n3", "new_files": ["${ASTRONET_EXPERIMENT_DATA}/finetune_delta_n3.tfrecord"]},
+    {"name": "n5", "new_files": ["${ASTRONET_EXPERIMENT_DATA}/finetune_delta_n5.tfrecord"]},
+    {"name": "n8", "new_files": ["${ASTRONET_EXPERIMENT_DATA}/finetune_delta_n8.tfrecord"]},
+    {"name": "n10", "new_files": ["${ASTRONET_EXPERIMENT_DATA}/finetune_delta_n10.tfrecord"]},
+    {"name": "n13", "new_files": ["${ASTRONET_EXPERIMENT_DATA}/finetune_delta_n13.tfrecord"]},
+    {"name": "n15", "new_files": ["${ASTRONET_EXPERIMENT_DATA}/finetune_delta_n15.tfrecord"]}
+  ]
+}

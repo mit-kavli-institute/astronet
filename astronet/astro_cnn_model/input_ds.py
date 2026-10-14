@@ -20,13 +20,15 @@ from absl import logging
 class ExampleParser:
   """Function to parse a single tf.Example into feature and label tensors."""
 
-  def __init__(self, config, include_labels=False, include_identifiers=False):
-    if include_labels and include_identifiers:
-      raise ValueError("Cannot set both include_labels and include_identifiers")
-
+  def __init__(self,
+               config,
+               include_labels=False,
+               include_identifiers=False,
+               weight_table=None):
     self.config = config
     self.include_labels = include_labels
     self.include_identifiers = include_identifiers
+    self.weight_table = weight_table
 
   def _extract_features(self, parsed_features):
     """Extracts and processes features from raw parsed features."""
@@ -96,7 +98,7 @@ class ExampleParser:
     if self.include_labels:
       for name in self.config.label_columns:
         data_fields[name] = tf.io.FixedLenFeature([], tf.int64)
-    if self.include_identifiers:
+    if self.include_identifiers or self.weight_table is not None:
       assert "astro_id" not in data_fields
       data_fields["astro_id"] = tf.io.FixedLenFeature([], tf.int64)
 
@@ -107,6 +109,10 @@ class ExampleParser:
 
     if self.include_labels:
       labels, weight = self._extract_labels(parsed_features)
+      if self.weight_table is not None:
+        weight *= self.weight_table.lookup(parsed_features["astro_id"])
+      if self.include_identifiers:
+        return features, labels, weight, parsed_features.pop("astro_id")
       return features, labels, weight
 
     if self.include_identifiers:
@@ -117,6 +123,7 @@ class ExampleParser:
 
 
 class TimeSeriesRandomReverser:
+  """Randomly reverse time-series features while preserving other tensors."""
 
   def __init__(self, feature_config, prob):
     self.feature_config = feature_config
@@ -148,18 +155,36 @@ def build_dataset(file_pattern,
                   repeat=1,
                   include_identifiers=False,
                   use_cache=False,
-                  apply_data_augmentation=False):
+                  apply_data_augmentation=False,
+                  exclude_astro_ids=None,
+                  weight_table=None):
   """Builds a Tensorflow Dataset from TFrecord files."""
-  filenames = tf.io.gfile.glob(file_pattern)
-  if not filenames:
-    raise ValueError(f"Found no files matching '{file_pattern}'")
+  filenames = []
+  for pattern in file_pattern.split(","):
+    matches = tf.io.gfile.glob(pattern.strip())
+    if not matches:
+      raise ValueError(f"Found no files matching '{pattern}'")
+    filenames.extend(matches)
+  filenames = list(dict.fromkeys(filenames))
   ds = tf.data.Dataset.from_tensor_slices(filenames)
   if shuffle_filenames:
     ds = ds.shuffle(ds.cardinality())
   ds = ds.flat_map(tf.data.TFRecordDataset)
+  parse_identifiers = include_identifiers or exclude_astro_ids is not None
   example_parser = ExampleParser(input_config, include_labels,
-                                 include_identifiers)
+                                 parse_identifiers, weight_table)
   ds = ds.map(example_parser)
+  if exclude_astro_ids is not None:
+    excluded = tf.constant(list(exclude_astro_ids), dtype=tf.int64)
+    # Filter the finite source before cache/repeat. Filtering an infinite
+    # stream would hang when all records are excluded.
+    ds = ds.filter(lambda *parts: ~tf.reduce_any(tf.equal(parts[-1], excluded)))
+    if not include_identifiers:
+      if include_labels:
+        ds = ds.map(lambda features, labels, weight, identifier:
+                    (features, labels, weight))
+      else:
+        ds = ds.map(lambda features, identifier: features)
   if use_cache:
     # Cache the dataset in memory to avoid re-reading it over the network.
     ds = ds.cache()
@@ -167,15 +192,15 @@ def build_dataset(file_pattern,
       logging.warning("Both shuffle_filenames and use_cache are set to true. "
                       "Filenames will only be shuffled once, not each epoch.")
 
-  if apply_data_augmentation and input_config.get("random_reverse_time_series"):
-    ds = ds.map(TimeSeriesRandomReverser(input_config.features, prob=0.5))
-
   if shuffle_values_buffer > 0:
     ds = ds.shuffle(shuffle_values_buffer)
   if repeat != 1:
     # Calling repeat() after shuffle() ensures that examples are shuffled
     # within each epoch, but not between epochs.
     ds = ds.repeat(repeat)
+  # Apply random augmentation after repeat so each visit can get a new draw.
+  if apply_data_augmentation and input_config.get("random_reverse_time_series"):
+    ds = ds.map(TimeSeriesRandomReverser(input_config.features, prob=0.5))
   ds = ds.batch(batch_size)
   ds = ds.prefetch(10)
 
@@ -185,16 +210,21 @@ def build_dataset(file_pattern,
 def build_train_dataset(file_pattern,
                         input_config,
                         batch_size,
-                        shuffle_values_buffer=2500):
+                        shuffle_values_buffer=2500,
+                        exclude_astro_ids=None,
+                        weight_table=None):
   """Builds a dataset for training."""
   return build_dataset(
       file_pattern,
       input_config,
       batch_size,
+      shuffle_filenames=True,
       shuffle_values_buffer=shuffle_values_buffer,
       repeat=None,
       use_cache=True,
-      apply_data_augmentation=True)
+      apply_data_augmentation=True,
+      exclude_astro_ids=exclude_astro_ids,
+      weight_table=weight_table)
 
 
 def build_eval_dataset(file_pattern,

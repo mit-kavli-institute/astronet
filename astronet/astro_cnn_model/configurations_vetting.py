@@ -13,8 +13,23 @@
 # limitations under the License.
 """Configurations for model building, training and evaluation."""
 
+import json
+from pathlib import Path
+
 from astronet.astro_cnn_model import configurations
 from astronet.util import config_util
+
+
+def dimond_2label():
+  """Load the frozen binary recipe used by the replay-buffer experiments.
+
+  The snapshot avoids importing unrelated experimental configurations onto main.
+  Each call returns a fresh dictionary, as do the other configuration builders.
+  """
+  path = Path(
+      __file__).resolve().parents[1] / "continual/configs/dimond_2label.json"
+  with path.open(encoding="utf-8") as stream:
+    return json.load(stream)
 
 
 def base():

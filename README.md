@@ -1,5 +1,12 @@
 This is a variation of the Liang model found in https://github.com/yuliang419/Astronet-Vetting.
 
+# Continuous retraining
+
+See [the continuous-learning guide](docs/continuous-learning.md) for the replay-buffer
+workflow. [Repository status](docs/repository-status.md) identifies the deployed
+release, Pablo's training data, and known provenance gaps; the
+[branch inventory](docs/branch-and-feature-inventory.md) records related experiments.
+
 # Usage
 
 ## Basic commands
